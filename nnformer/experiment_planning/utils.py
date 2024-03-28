@@ -71,6 +71,7 @@ def split_4d(input_folder, num_processes=default_num_threads, overwrite_task_out
             output_dirs.append(curr_out_dir)
 
     shutil.copytree(join(input_folder, "labelsTr"), join(output_folder, "labelsTr"))
+    shutil.copytree(join(input_folder, "labelsTs"), join(output_folder, "labelsTs"))
 
     p = Pool(num_processes)
     p.starmap(split_4d_nifti, zip(files, output_dirs))

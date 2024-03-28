@@ -1,0 +1,5 @@
+# Files from running environment
+nnformer.egg-info/
+
+# Pycache
+**/__pycache__/
