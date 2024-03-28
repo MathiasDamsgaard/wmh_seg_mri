@@ -26,6 +26,10 @@ default_cascade_trainer = "nnFormerTrainerV2CascadeFullRes"
 PLEASE READ paths.md FOR INFORMATION TO HOW TO SET THIS UP
 """
 
+os.environ['nnFormer_raw_data_base'] = "../DATASET/nnFormer_raw"
+os.environ['nnFormer_preprocessed'] = "../DATASET/nnFormer_preprocessed"
+os.environ['RESULTS_FOLDER'] = "../DATASET/nnFormer_results"
+
 base = os.environ['nnFormer_raw_data_base'] if "nnFormer_raw_data_base" in os.environ.keys() else None
 preprocessing_output_dir = os.environ['nnFormer_preprocessed'] if "nnFormer_preprocessed" in os.environ.keys() else None
 network_training_output_dir_base = os.path.join(os.environ['RESULTS_FOLDER']) if "RESULTS_FOLDER" in os.environ.keys() else None
