@@ -47,7 +47,7 @@ class nnFormerTrainerV2_nnformer_wmh(nnFormerTrainer):
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
                          deterministic, fp16)
-        self.max_num_epochs = 1000
+        self.max_num_epochs = 1
         self.initial_lr = 1e-2
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
@@ -177,7 +177,7 @@ class nnFormerTrainerV2_nnformer_wmh(nnFormerTrainer):
                                 window_size=self.window_size,
                                 deep_supervision=self.deep_supervision)
         if self.load_pretrain_weight:
-            checkpoint = torch.load("./../weight/tumor_pretrain.model", map_location='cpu')
+            checkpoint = torch.load("/home/mathiascd/Weights/pretrain.model", map_location='cpu')
             ck={}
             
             for i in self.network.state_dict():
