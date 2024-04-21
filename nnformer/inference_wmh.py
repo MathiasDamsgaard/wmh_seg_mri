@@ -28,26 +28,14 @@ def hd(pred,gt):
         return 0
         
 def process_label(label):
-    net = label == 2
-    ed = label == 1
-    et = label == 3
-    ET=et
-    TC=net+et
-    WT=net+et+ed
-    return ET,TC,WT
+    return label == 1
 
 def test(fold):
-    path='./'
+    path='./../nobackup/DATASET/nnFormer_raw/nnFormer_raw_data/Task001_wmh/'
     label_list=sorted(glob.glob(os.path.join(path,'labelsTs','*nii.gz')))
     infer_list=sorted(glob.glob(os.path.join(path,'inferTs',fold,'*nii.gz')))
     print("loading success...")
-    Dice_et=[]
-    Dice_tc=[]
-    Dice_wt=[]
-    
-    HD_et=[]
-    HD_tc=[]
-    HD_wt=[]
+    Dice, HD = [], []
     file=path + 'inferTs/'+fold
     fw = open(file+'/dice_pre.txt', 'w')
 
@@ -55,53 +43,27 @@ def test(fold):
         print(label_path.split('/')[-1])
         print(infer_path.split('/')[-1])
         label,infer = read_nii(label_path),read_nii(infer_path)
-        label_et,label_tc,label_wt=process_label(label)
-        infer_et,infer_tc,infer_wt=process_label(infer)
-        Dice_et.append(dice(infer_et,label_et))
-        Dice_tc.append(dice(infer_tc,label_tc))
-        Dice_wt.append(dice(infer_wt,label_wt))
+        label_p = process_label(label)
+        infer_p = process_label(infer)
+        Dice.append(dice(infer_p,label_p))
         
-        HD_et.append(hd(infer_et,label_et))
-        HD_tc.append(hd(infer_tc,label_tc))
-        HD_wt.append(hd(infer_wt,label_wt))
+        HD.append(hd(infer_p,label_p))
         
         fw.write('*'*20+'\n',)
         fw.write(infer_path.split('/')[-1]+'\n')
-        fw.write('hd_et: {:.4f}\n'.format(HD_et[-1]))
-        fw.write('hd_tc: {:.4f}\n'.format(HD_tc[-1]))
-        fw.write('hd_wt: {:.4f}\n'.format(HD_wt[-1]))
-        fw.write('*'*20+'\n',)
-        fw.write('Dice_et: {:.4f}\n'.format(Dice_et[-1]))
-        fw.write('Dice_tc: {:.4f}\n'.format(Dice_tc[-1]))
-        fw.write('Dice_wt: {:.4f}\n'.format(Dice_wt[-1]))
+        fw.write('hd: {:.4f}\n'.format(HD[-1]))
+        fw.write('Dice: {:.4f}\n'.format(Dice[-1]))
+        #print('dice: {:.4f}'.format(np.mean(Dice)))
 
-        #print('dice_et: {:.4f}'.format(np.mean(Dice_et)))
-        #print('dice_tc: {:.4f}'.format(np.mean(Dice_tc)))
-        #print('dice_wt: {:.4f}'.format(np.mean(Dice_wt)))
-    dsc=[]
-    avg_hd=[]
-    dsc.append(np.mean(Dice_et))
-    dsc.append(np.mean(Dice_tc))
-    dsc.append(np.mean(Dice_wt))
+    avg_dsc = np.mean(Dice)
+    avg_hd = np.mean(HD)
+    fw.write('*'*20+'\n',)
+    fw.write('Dice: '+str(avg_dsc)+' '+'\n')
+    fw.write('HD: '+str(avg_hd)+' '+'\n')
+    fw.close()
     
-    avg_hd.append(np.mean(HD_et))
-    avg_hd.append(np.mean(HD_tc))
-    avg_hd.append(np.mean(HD_wt))
-    
-    fw.write('Dice_et'+str(np.mean(Dice_et))+' '+'\n')
-    fw.write('Dice_tc'+str(np.mean(Dice_tc))+' '+'\n')
-    fw.write('Dice_wt'+str(np.mean(Dice_wt))+' '+'\n')
-    
-    fw.write('HD_et'+str(np.mean(HD_et))+' '+'\n')
-    fw.write('HD_tc'+str(np.mean(HD_tc))+' '+'\n')
-    fw.write('HD_wt'+str(np.mean(HD_wt))+' '+'\n')
-    
-    fw.write('Dice'+str(np.mean(dsc))+' '+'\n')
-    fw.write('HD'+str(np.mean(avg_hd))+' '+'\n')
-    #print('Dice'+str(np.mean(dsc))+' '+'\n')
-    #print('HD'+str(np.mean(avg_hd))+' '+'\n')
-    
-
+    #print('Dice'+str(avg_dsc)+' '+'\n')
+    #print('HD'+str(avg_hd)+' '+'\n')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
