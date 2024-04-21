@@ -22,7 +22,7 @@ import torch
 from nnformer.training.data_augmentation.data_augmentation_moreDA import get_moreDA_augmentation
 from nnformer.training.loss_functions.deep_supervision import MultipleOutputLoss2
 from nnformer.utilities.to_torch import maybe_to_torch, to_cuda
-from nnformer.network_architecture.nnFormer_tumor import nnFormer
+from nnformer.network_architecture.nnFormer_wmh import nnFormer
 from nnformer.network_architecture.initialization import InitWeights_He
 from nnformer.network_architecture.neural_network import SegmentationNetwork
 from nnformer.training.data_augmentation.default_data_augmentation import default_2D_augmentation_params, \
@@ -47,13 +47,13 @@ class nnFormerTrainerV2_nnformer_wmh(nnFormerTrainer):
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
                          deterministic, fp16)
-        self.max_num_epochs = 1
+        self.max_num_epochs = 200
         self.initial_lr = 1e-2
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
         self.pin_memory = True
-        self.load_pretrain_weight = True
-         
+        self.load_pretrain_weight = False
+        
         self.load_plans_file()    
         
         if len(self.plans['plans_per_stage'])==2:
@@ -65,14 +65,14 @@ class nnFormerTrainerV2_nnformer_wmh(nnFormerTrainer):
         self.input_channels=self.plans['num_modalities']
         self.num_classes=self.plans['num_classes'] + 1
         self.conv_op=nn.Conv3d
-        
+        # image size 182 x 218 x 182
         self.embedding_dim=96
         self.depths=[2, 2, 2, 2]
         self.num_heads=[3, 6, 12, 24]
         self.embedding_patch_size=[4,4,4]
         self.window_size=[4,4,8,4]
         
-        self.deep_supervision = True
+        self.deep_supervision = False
 
     def initialize(self, training=True, force_load_plans=False):
         """
@@ -128,8 +128,7 @@ class nnFormerTrainerV2_nnformer_wmh(nnFormerTrainer):
 
                 self.tr_gen, self.val_gen = get_moreDA_augmentation(
                     self.dl_tr, self.dl_val,
-                    self.data_aug_params[
-                        'patch_size_for_spatialtransform'],
+                    self.data_aug_params['patch_size_for_spatialtransform'],
                     self.data_aug_params,
                     deep_supervision_scales=self.deep_supervision_scales if self.deep_supervision else None,
                     pin_memory=self.pin_memory,
@@ -177,7 +176,7 @@ class nnFormerTrainerV2_nnformer_wmh(nnFormerTrainer):
                                 window_size=self.window_size,
                                 deep_supervision=self.deep_supervision)
         if self.load_pretrain_weight:
-            checkpoint = torch.load("/home/mathiascd/Weights/pretrain.model", map_location='cpu')
+            checkpoint = torch.load("/mnt/projects/whmseg/Weights/pretrain.model", map_location='cpu')
             ck={}
             
             for i in self.network.state_dict():

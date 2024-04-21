@@ -276,6 +276,8 @@ class nnFormerTrainer(NetworkTrainer):
     def plot_network_architecture(self):
         try:
             from batchgenerators.utilities.file_and_folder_operations import join
+            from torch.onnx.symbolic_helper import _set_opset_version
+            _set_opset_version(11)
             import hiddenlayer as hl
             if torch.cuda.is_available():
                 g = hl.build_graph(self.network, torch.rand((1, self.num_input_channels, *self.patch_size)).cuda(),

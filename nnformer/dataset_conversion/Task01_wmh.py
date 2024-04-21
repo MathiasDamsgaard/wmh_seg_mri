@@ -24,46 +24,52 @@ if __name__ == '__main__':
     maybe_mkdir_p(target_labelsTr)
 
     # Convert the training examples
-    images_dir_tr = join(base, '../DATASET', 'Training', 'images')
+    images_dir_tr = join(base, '../nobackup/VoSHT/data', 'Training', 'images')
 
     # Locate all images
     training_images = subfiles(images_dir_tr, join=False)
     for t in tqdm(training_images):
         input_image_file = join(images_dir_tr, t)
-        unique_name = t[:-7]  # just the filename with the .nii.gz extension cropped away
+        #unique_name = t[:-7]  # just the filename with the .nii.gz extension cropped away
+        unique_name = t[:18]
         output_image_file = join(target_imagesTr, unique_name + ".nii.gz")
 
         shutil.copy(input_image_file, output_image_file)
 
-    labels_dir_tr = join(base, '../DATASET', 'Training', 'labels')
+    labels_dir_tr = join(base, '../nobackup/VoSHT/data', 'Training', 'labels')
     training_labels = subfiles(labels_dir_tr, join=False)
     for t in tqdm(training_labels):
         input_seg_file = join(labels_dir_tr, t)
-        output_seg_file = target_labelsTr
+        #unique_name = t
+        unique_name = t[:18]
+        output_seg_file = join(target_labelsTr, unique_name + ".nii.gz")
 
         shutil.copy(input_seg_file, output_seg_file)
     
      # now do the same for the test set
-    images_dir_ts = join(base, '../DATASET', 'Test', 'images')
+    images_dir_ts = join(base, '../nobackup/VoSHT/data', 'Test', 'images')
     testing_images = subfiles(images_dir_ts, join=False)
     for t in tqdm(testing_images):
         input_image_file = join(images_dir_ts, t)
-        unique_name = t[:-7]
+        #unique_name = t[:-7]
+        unique_name = t[:18]
         output_image_file = join(target_imagesTs, unique_name + ".nii.gz")
 
         shutil.copy(input_image_file, output_image_file)
 
-    labels_dir_ts = join(base, '../DATASET', 'Test', 'labels')
+    labels_dir_ts = join(base, '../nobackup/VoSHT/data', 'Test', 'labels')
     test_labels = subfiles(labels_dir_ts, join=False)
     for t in tqdm(test_labels):
         input_seg_file = join(labels_dir_ts, t)
-        output_seg_file = target_labelsTs
+        #unique_name = t
+        unique_name = t[:18]
+        output_seg_file = join(target_labelsTs, unique_name + ".nii.gz")
 
         shutil.copy(input_seg_file, output_seg_file)
 
     # finally we can call the utility for generating a dataset.json
-    # generate_dataset_json(join(target_base, 'dataset.json'), target_imagesTr, target_imagesTs, modalities=('FLAIR',), 
-    #                       labels={0: 'background', 1: 'wmh'}, dataset_name=task_name, license='DRCMR')
+    generate_dataset_json(join(target_base, 'dataset.json'), target_imagesTr, target_imagesTs, modalities=('FLAIR',), 
+                          labels={0: 'background', 1: 'wmh'}, dataset_name=task_name, license='DRCMR')
 
-    generate_dataset_json(join(target_base, 'dataset.json'), target_imagesTr, target_imagesTs, modalities=('T1', 'T1ce', 'T2', 'FLAIR'),
-                          labels={"0": "background", "1": "edema", "2": "non-enhancing", "3": "enhancing"}, dataset_name=task_name, license='Test_BRATS')
+    # generate_dataset_json(join(target_base, 'dataset.json'), target_imagesTr, target_imagesTs, modalities=('T1', 'T1ce', 'T2', 'FLAIR'),
+    #                       labels={"0": "background", "1": "edema", "2": "non-enhancing", "3": "enhancing"}, dataset_name=task_name, license='Test_BRATS')
