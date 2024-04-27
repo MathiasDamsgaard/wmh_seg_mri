@@ -44,7 +44,11 @@ def generate_dataset_json(output_file: str, imagesTr_dir: str, imagesTs_dir: str
     :param dataset_release:
     :return:
     """
-    train_identifiers = get_identifiers_from_splitted_files(imagesTr_dir)
+
+    if imagesTr_dir is not None:
+        train_identifiers = get_identifiers_from_splitted_files(imagesTr_dir)
+    else:
+        train_identifiers = []
 
     if imagesTs_dir is not None:
         test_identifiers = get_identifiers_from_splitted_files(imagesTs_dir)

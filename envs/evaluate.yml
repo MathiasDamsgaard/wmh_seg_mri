@@ -24,10 +24,12 @@ dependencies:
   - xz=5.4.6=h5eee18b_0
   - zlib=1.2.13=h5eee18b_0
   - pip:
+      - connected-components-3d==3.14.1
       - contourpy==1.2.1
       - cycler==0.12.1
       - fonttools==4.51.0
       - imageio==2.34.0
+      - joblib==1.4.0
       - kiwisolver==1.4.5
       - lazy-loader==0.4
       - matplotlib==3.8.0
@@ -42,9 +44,11 @@ dependencies:
       - python-dateutil==2.9.0.post0
       - pytz==2024.1
       - scikit-image==0.22.0
+      - scikit-learn==1.4.2
       - scipy==1.11.4
       - simpleitk==2.3.1
       - six==1.16.0
+      - threadpoolctl==3.4.0
       - tifffile==2024.4.18
       - tqdm==4.65.0
       - tzdata==2024.1

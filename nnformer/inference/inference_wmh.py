@@ -4,6 +4,7 @@ import SimpleITK as sitk
 import numpy as np
 import argparse
 from medpy.metric import binary
+from tqdm import tqdm
 
 def read_nii(path):
     return sitk.GetArrayFromImage(sitk.ReadImage(path))
@@ -31,7 +32,7 @@ def process_label(label):
     return label == 1
 
 def test(fold):
-    path='./../nobackup/DATASET/nnFormer_raw/nnFormer_raw_data/Task001_wmh/'
+    path='./../../nobackup/DATASET/nnFormer_raw/nnFormer_raw_data/Task001_wmh/'
     label_list=sorted(glob.glob(os.path.join(path,'labelsTs','*nii.gz')))
     infer_list=sorted(glob.glob(os.path.join(path,'inferTs',fold,'*nii.gz')))
     print("loading success...")
@@ -39,7 +40,7 @@ def test(fold):
     file=path + 'inferTs/'+fold
     fw = open(file+'/dice_pre.txt', 'w')
 
-    for label_path,infer_path in zip(label_list,infer_list):
+    for label_path,infer_path in tqdm(zip(label_list,infer_list)):
         print(label_path.split('/')[-1])
         print(infer_path.split('/')[-1])
         label,infer = read_nii(label_path),read_nii(infer_path)
