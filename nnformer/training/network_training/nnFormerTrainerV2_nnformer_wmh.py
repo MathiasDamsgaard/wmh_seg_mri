@@ -72,7 +72,7 @@ class nnFormerTrainerV2_nnformer_wmh(nnFormerTrainer):
         self.embedding_patch_size=[4,4,4]
         self.window_size=[4,4,8,4]
         
-        self.deep_supervision = False
+        self.deep_supervision = True
 
     def initialize(self, training=True, force_load_plans=False):
         """
@@ -445,25 +445,25 @@ class nnFormerTrainerV2_nnformer_wmh(nnFormerTrainer):
         self.optimizer.param_groups[0]['lr'] = poly_lr(ep, self.max_num_epochs, self.initial_lr, 0.9)
         self.print_to_log_file("lr:", np.round(self.optimizer.param_groups[0]['lr'], decimals=6))
 
-    def on_epoch_end(self):
-        """
-        overwrite patient-based early stopping. Always run to 1000 epochs
-        :return:
-        """
-        super().on_epoch_end()
-        continue_training = self.epoch < self.max_num_epochs
+    # def on_epoch_end(self):
+    #     """
+    #     overwrite patient-based early stopping. Always run to 1000 epochs
+    #     :return:
+    #     """
+    #     super().on_epoch_end()
+    #     continue_training = self.epoch < self.max_num_epochs
 
-        # it can rarely happen that the momentum of nnUNetTrainerV2 is too high for some dataset. If at epoch 100 the
-        # estimated validation Dice is still 0 then we reduce the momentum from 0.99 to 0.95
-        if self.epoch == 100:
-            if self.all_val_eval_metrics[-1] == 0:
-                self.optimizer.param_groups[0]["momentum"] = 0.95
-                self.network.apply(InitWeights_He(1e-2))
-                self.print_to_log_file("At epoch 100, the mean foreground Dice was 0. This can be caused by a too "
-                                       "high momentum. High momentum (0.99) is good for datasets where it works, but "
-                                       "sometimes causes issues such as this one. Momentum has now been reduced to "
-                                       "0.95 and network weights have been reinitialized")
-        return continue_training
+    #     # it can rarely happen that the momentum of nnUNetTrainerV2 is too high for some dataset. If at epoch 100 the
+    #     # estimated validation Dice is still 0 then we reduce the momentum from 0.99 to 0.95
+    #     if self.epoch == 100:
+    #         if self.all_val_eval_metrics[-1] == 0:
+    #             self.optimizer.param_groups[0]["momentum"] = 0.95
+    #             self.network.apply(InitWeights_He(1e-2))
+    #             self.print_to_log_file("At epoch 100, the mean foreground Dice was 0. This can be caused by a too "
+    #                                    "high momentum. High momentum (0.99) is good for datasets where it works, but "
+    #                                    "sometimes causes issues such as this one. Momentum has now been reduced to "
+    #                                    "0.95 and network weights have been reinitialized")
+    #     return continue_training
 
     def run_training(self):
         """

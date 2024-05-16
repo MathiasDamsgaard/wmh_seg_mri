@@ -22,7 +22,7 @@ def cal_dice(data1, data2):
     return dice
 
 # get data
-task_path = '/mnt/projects/whmseg/nobackup/DATASET/nnFormer_raw/nnFormer_raw_data/Task003_MICCAI/'
+task_path = '/mnt/projects/whmseg/nobackup/DATASET/nnFormer_raw/nnFormer_raw_data/Task001_wmh/'
 gt_path = task_path + 'labelsTs'
 infer_path = task_path + 'inferTs/nnformer_wmh'
 

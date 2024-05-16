@@ -131,8 +131,8 @@ def save_segmentation_nifti_from_softmax(segmentation_softmax: Union[str, np.nda
         for c in range(3):
             bbox[c][1] = np.min((bbox[c][0] + seg_old_spacing.shape[c], shape_original_before_cropping[c]))
         seg_old_size[bbox[0][0]:bbox[0][1],
-        bbox[1][0]:bbox[1][1],
-        bbox[2][0]:bbox[2][1]] = seg_old_spacing
+                     bbox[1][0]:bbox[1][1],
+                     bbox[2][0]:bbox[2][1]] = seg_old_spacing
     else:
         seg_old_size = seg_old_spacing
 
