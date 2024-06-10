@@ -26,13 +26,13 @@ default_cascade_trainer = "nnFormerTrainerV2CascadeFullRes"
 PLEASE READ paths.md FOR INFORMATION TO HOW TO SET THIS UP
 """
 
-os.environ['nnFormer_raw_data_base'] = "/mnt/scratch/projects/whmseg/DATASET/nnFormer_raw"
-os.environ['nnFormer_preprocessed'] = "/mnt/scratch/projects/whmseg/DATASET/nnFormer_preprocessed"
-os.environ['RESULTS_FOLDER'] = "/mnt/scratch/projects/whmseg/nnFormer_results"
+# os.environ['nnFormer_raw_data_base'] = "/mnt/scratch/projects/whmseg/DATASET/nnFormer_raw"
+# os.environ['nnFormer_preprocessed'] = "/mnt/scratch/projects/whmseg/DATASET/nnFormer_preprocessed"
+# os.environ['RESULTS_FOLDER'] = "/mnt/scratch/projects/whmseg/nnFormer_results"
 
-# os.environ['nnFormer_raw_data_base'] = "/mnt/projects/whmseg/nobackup/DATASET/nnFormer_raw"
-# os.environ['nnFormer_preprocessed'] = "/mnt/projects/whmseg/nobackup/DATASET/nnFormer_preprocessed"
-# os.environ['RESULTS_FOLDER'] = "/mnt/projects/whmseg/nnFormer_results"
+os.environ['nnFormer_raw_data_base'] = "/mnt/projects/whmseg/nobackup/DATASET/nnFormer_raw"
+os.environ['nnFormer_preprocessed'] = "/mnt/projects/whmseg/nobackup/DATASET/nnFormer_preprocessed"
+os.environ['RESULTS_FOLDER'] = "/mnt/projects/whmseg/nnFormer_results"
 
 base = os.environ['nnFormer_raw_data_base'] if "nnFormer_raw_data_base" in os.environ.keys() else None
 preprocessing_output_dir = os.environ['nnFormer_preprocessed'] if "nnFormer_preprocessed" in os.environ.keys() else None
