@@ -117,6 +117,8 @@ def save_segmentation_nifti_from_softmax(segmentation_softmax: Union[str, np.nda
         save_pickle(properties_dict, resampled_npz_fname[:-4] + ".pkl")
 
     if region_class_order is None:
+        if resampled_npz_fname is not None:
+            prob_old_spacing = seg_old_spacing.copy()
         seg_old_spacing = seg_old_spacing.argmax(0)
     else:
         seg_old_spacing_final = np.zeros(seg_old_spacing.shape[1:])
@@ -128,24 +130,56 @@ def save_segmentation_nifti_from_softmax(segmentation_softmax: Union[str, np.nda
 
     if bbox is not None:
         seg_old_size = np.zeros(shape_original_before_cropping)
+        if resampled_npz_fname is not None:
+            prob_old_size_0 = np.zeros(shape_original_before_cropping)
+            prob_old_size_1 = np.zeros(shape_original_before_cropping)
         for c in range(3):
             bbox[c][1] = np.min((bbox[c][0] + seg_old_spacing.shape[c], shape_original_before_cropping[c]))
         seg_old_size[bbox[0][0]:bbox[0][1],
                      bbox[1][0]:bbox[1][1],
                      bbox[2][0]:bbox[2][1]] = seg_old_spacing
+        if resampled_npz_fname is not None:
+            prob_old_size_0[bbox[0][0]:bbox[0][1],
+                            bbox[1][0]:bbox[1][1],
+                            bbox[2][0]:bbox[2][1]] = prob_old_spacing[0] # background
+            prob_old_size_1[bbox[0][0]:bbox[0][1],
+                            bbox[1][0]:bbox[1][1],
+                            bbox[2][0]:bbox[2][1]] = prob_old_spacing[1] # wmh channel
+            prob_old_size = np.stack((prob_old_size_0, prob_old_size_1))
     else:
         seg_old_size = seg_old_spacing
+        prob_old_size = prob_old_spacing
 
     if seg_postprogess_fn is not None:
         seg_old_size_postprocessed = seg_postprogess_fn(np.copy(seg_old_size), *seg_postprocess_args)
     else:
         seg_old_size_postprocessed = seg_old_size
+        if resampled_npz_fname is not None:
+            prob_old_size_postprocessed = prob_old_size
 
     seg_resized_itk = sitk.GetImageFromArray(seg_old_size_postprocessed.astype(np.uint8))
     seg_resized_itk.SetSpacing(properties_dict['itk_spacing'])
     seg_resized_itk.SetOrigin(properties_dict['itk_origin'])
     seg_resized_itk.SetDirection(properties_dict['itk_direction'])
     sitk.WriteImage(seg_resized_itk, out_fname)
+
+    if resampled_npz_fname is not None:
+        folders = resampled_npz_fname.split("/")
+        folders.insert(-1, "probs")
+        maybe_mkdir_p("/".join(folders[:-1]))
+        resampled_npz_fname = "/".join(folders)
+
+        np.savez_compressed(resampled_npz_fname, softmax=prob_old_size_postprocessed.astype(np.float32))
+        # this is needed for ensembling if the nonlinearity is sigmoid
+        if region_class_order is not None:
+            properties_dict['regions_class_order'] = region_class_order
+        save_pickle(properties_dict, resampled_npz_fname[:-4] + ".pkl")
+
+        prob_resized_itk = sitk.GetImageFromArray(prob_old_size_1.astype(np.float32))
+        prob_resized_itk.SetSpacing(properties_dict['itk_spacing'])
+        prob_resized_itk.SetOrigin(properties_dict['itk_origin'])
+        prob_resized_itk.SetDirection(properties_dict['itk_direction'])
+        sitk.WriteImage(prob_resized_itk, resampled_npz_fname[:-4] + ".nii.gz")
 
     if (non_postprocessed_fname is not None) and (seg_postprogess_fn is not None):
         seg_resized_itk = sitk.GetImageFromArray(seg_old_size.astype(np.uint8))

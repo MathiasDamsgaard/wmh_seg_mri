@@ -60,6 +60,14 @@ def get_default_configuration(network, task, network_trainer, plans_identifier=d
         pickle.dump(plans, pickle_file)
         pickle_file.close()
 
+    elif task == 'Task002_t1':
+        plans['plans_per_stage'][Stage]['batch_size'] = 2
+        plans['plans_per_stage'][Stage]['patch_size'] = np.array([128,128,128])
+        plans['plans_per_stage'][Stage]['pool_op_kernel_sizes']=[[2,2,2],[2,2,2],[2,2,2]]
+        pickle_file = open(plans_file,'wb')
+        pickle.dump(plans, pickle_file)
+        pickle_file.close()
+
     # if task=='Task001_ACDC':
     #     plans['plans_per_stage'][Stage]['batch_size']=4
     #     plans['plans_per_stage'][Stage]['patch_size']=np.array([14,160,160])
