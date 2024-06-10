@@ -13,46 +13,38 @@ import seg_metrics.seg_metrics as sg
 from evaluate_metrics import *
 
 # get data
-task_path = '/mnt/projects/whmseg/nobackup/DATASET/nnFormer_raw/nnFormer_raw_data/Task001_wmh/'
-gt_path = task_path + 'labelsTs'
-#infer_path = task_path + 'inferTs/nnformer_mwsc_t1'
-infer_path = '/mnt/projects/whmseg/nobackup/DATASET/nnFormer_raw/nnFormer_raw_data/Ensemble_wmh'
-prob_path = infer_path + '/probs'
+gt_path = '/mnt/projects/whmseg/nobackup/DATASET/nnFormer_raw/nnFormer_raw_data/xinter-rater/annotator2/'
+infer_path = '/mnt/projects/whmseg/nobackup/DATASET/nnFormer_raw/nnFormer_raw_data/xinter-rater/labelsTs/'
+out_dir = '/mnt/projects/whmseg/nobackup/DATASET/nnFormer_raw/nnFormer_raw_data/xinter-rater/Reverse/'
 
 print("Loading data...")
-label_data = sorted([f for f in os.listdir(gt_path) if os.path.isfile(os.path.join(gt_path,f)) and f[-7:]==".nii.gz"])
-infer_data = sorted([f for f in os.listdir(infer_path) if os.path.isfile(os.path.join(infer_path,f)) and f[-7:]==".nii.gz"])
-prob_data = sorted([f for f in os.listdir(prob_path) if os.path.isfile(os.path.join(prob_path,f)) and f[-7:]==".nii.gz" and len(f) == 25]) #25,14
+label_data = sorted([f for f in os.listdir(gt_path) if os.path.isfile(os.path.join(gt_path,f)) and f[-7:]==".nii.gz"]) # and f.startswith('label')])
+infer_data = sorted([f for f in os.listdir(infer_path) if os.path.isfile(os.path.join(infer_path,f)) and f[-7:]==".nii.gz"]) # and f.startswith('pred')])
 
 # check if infered labels and test labels match
-if label_data == infer_data == prob_data:
+if len(label_data) == len(infer_data):
     print("Data loaded")
 else:
     raise IndexError("Groundtruth data and infered data does not match")
 
 # create file to write results to
-fw = open(infer_path + '/evalution.txt', 'w')
-fw.write(infer_path.split('/')[-1]+'\n')
+fw = open(out_dir + 'evalution.txt', 'w')
 
 # calculate metrics
 dice_scores, hd95_score, kappa_scores,rvd_scores = [], [], [], []
 tprs, precisions, f1_scores, auc_scores = [], [], [], []
 
 print("Calculating...")
-for f in tqdm(infer_data):
+for l, i in tqdm(zip(label_data, infer_data)):
     # Load data and convert to numpy
-    gt_f_path = os.path.join(gt_path, f)
+    gt_f_path = os.path.join(gt_path, l)
     gt_img = nib.load(gt_f_path)
     gt = np.asarray(gt_img.dataobj)
 
-    infer_f_path = os.path.join(infer_path, f)
+    infer_f_path = os.path.join(infer_path, i)
     infer_img = nib.load(infer_f_path)
     infer = np.asarray(infer_img.dataobj)
 
-    prob_f_path = os.path.join(prob_path, f)
-    prob_img = nib.load(prob_f_path)
-    prob = np.asarray(prob_img.dataobj)
-    
     # metrics
     dice_scores.append(cal_dice(gt, infer))
     hd95_score.append(hd95(gt, infer))
@@ -62,11 +54,11 @@ for f in tqdm(infer_data):
     precisions.append(precision)
     f1_scores.append(f1)
     rvd_scores.append(cal_rvd(gt,infer))
-    auc_scores.append(sg_metrics(gt_f_path, infer_f_path, infer_f_path[:-25], gt, prob)) #25,14
+    auc_scores.append(sg_metrics(gt_f_path, infer_f_path, out_dir, gt, infer))
 
     # write metrics to the file
     fw.write('*'*20+'\n',)
-    fw.write(f[:-7]+'\n') # image name
+    fw.write(l[6:-7]+'\n') # image name
     fw.write('HD: {:.4f}\n'.format(hd95_score[-1]))
     fw.write('Dice: {:.4f}\n'.format(dice_scores[-1]))
     fw.write('TPR: {:.4f}\n'.format(tprs[-1]))
@@ -111,15 +103,15 @@ fw.close()
 # save metrics for plotting/confidence intervals etc
 all_metrics = np.column_stack((dice_scores, hd95_score, kappa_scores, rvd_scores, tprs, precisions, f1_scores, auc_scores))
 
-with open(infer_path + '/metrics.csv', 'w') as f:
+with open(out_dir + 'metrics.csv', 'w') as f:
     write = csv.writer(f)
     write.writerow(['Dice', 'HD95', 'Kappa',' RVD', 'Cluster recall', 'Cluster precision', 'Cluster f1', 'AUC'])
     write.writerows(all_metrics)
 
 # create file to write sg metrics to
-df_v = pd.read_csv(f'{infer_path}/sg_metrics.csv')
+df_v = pd.read_csv(f'{out_dir}sg_metrics.csv')
 
-fw = open(infer_path + '/sg_evaluation.txt', 'w')
+fw = open(out_dir + 'sg_evaluation.txt', 'w')
 fw.write('Average score values:'+'\n')
 fw.write('Dice: {:.4f}\n'.format(df_v.loc[:, 'dice'].mean()))
 fw.write('HD95: {:.4f}\n'.format(df_v.loc[:, 'hd95'].mean()))
