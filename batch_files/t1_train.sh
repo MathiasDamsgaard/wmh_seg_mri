@@ -16,7 +16,7 @@ export nnFormer_preprocessed="/mnt/scratch/projects/whmseg/DATASET/nnFormer_prep
 export RESULTS_FOLDER="/mnt/scratch/projects/whmseg/nnFormer_results"
 
 cd /mnt/scratch/projects/whmseg/
-CUDA_VISIBLE_DEVICES=0 nnFormer_train 3d_fullres nnFormerTrainerV2_nnformer_wmh 1 0
+CUDA_VISIBLE_DEVICES=0 nnFormer_train 3d_fullres nnFormerTrainerV2_nnformer_t1 2 0
 
-cd /mnt/scratch/projects/whmseg/DATASET/nnFormer_raw/nnFormer_raw_data/Task001_wmh/
-CUDA_VISIBLE_DEVICES=0 nnFormer_predict -i imagesTs -o inferTs/nnformer_wmh_nds_c -m 3d_fullres -t 1 -f 0 -tr nnFormerTrainerV2_nnformer_wmh -chk model_best -z
+cd /mnt/scratch/projects/whmseg/DATASET/nnFormer_raw/nnFormer_raw_data/Task002_t1/
+CUDA_VISIBLE_DEVICES=0 nnFormer_predict -i imagesTs -o inferTs/nnformer_wmh_t1 -m 3d_fullres -t 2 -f 0 -tr nnFormerTrainerV2_nnformer_t1 -chk model_best -z
