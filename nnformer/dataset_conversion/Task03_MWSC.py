@@ -8,9 +8,13 @@ import shutil
 
 if __name__ == '__main__': 
     base = os.getcwd()
-
+    t1 = True
+    
     # Now start the conversion of the dataset to nnU-Net:
-    task_name = 'Task03_MWSC'
+    if t1:
+        task_name = 'Task04_MWSC-t1'
+    else:
+        task_name = 'Task03_MWSC'
     target_base = join(nnFormer_raw_data, task_name)
     target_imagesTr = join(target_base, "imagesTr")
     target_labelsTr = join(target_base, "labelsTr")
@@ -24,7 +28,10 @@ if __name__ == '__main__':
     maybe_mkdir_p(target_labelsTs)
     
     # test set
-    images_dir_ts = join(base, '../nobackup/MWSC_challenge/mwsc_testset', 'image_masked')
+    if t1:
+        images_dir_ts = join(base, '../nobackup/MWSC_FlairT1')
+    else:
+        images_dir_ts = join(base, '../nobackup/MWSC_challenge/mwsc_testset', 'image_masked')
     testing_images = subfiles(images_dir_ts, join=False)
     for t in tqdm(testing_images):
         input_image_file = join(images_dir_ts, t)
@@ -44,6 +51,6 @@ if __name__ == '__main__':
         shutil.copy(input_seg_file, output_seg_file)
         shutil.copy(input_seg_file, join(target_labelsTr, unique_name + ".nii.gz"))
 
-    # finally we can call the utility for generating a dataset.json
+    # finally we can call a utility function for generating a dataset.json
     generate_dataset_json(join(target_base, 'dataset.json'), target_imagesTr, target_imagesTs, modalities=('FLAIR',), 
                           labels={0: 'background', 1: 'wmh'}, dataset_name=task_name, license='MICCAI')

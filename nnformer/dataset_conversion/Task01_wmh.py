@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
         shutil.copy(input_seg_file, output_seg_file)
 
-    # finally we can call the utility for generating a dataset.json
+    # finally we can call a utility function for generating a dataset.json
     generate_dataset_json(join(target_base, 'dataset.json'), target_imagesTr, target_imagesTs, modalities=('FLAIR',), 
                           labels={0: 'background', 1: 'wmh'}, dataset_name=task_name, license='DRCMR')
 
